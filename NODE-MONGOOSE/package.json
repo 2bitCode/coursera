@@ -1,0 +1,14 @@
+{
+  "name": "node-mongoose",
+  "version": "1.0.0",
+  "description": "use of mongoose odm with node js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sachin",
+  "license": "ISC",
+  "dependencies": {
+    "mongoose": "^6.1.2"
+  }
+}
