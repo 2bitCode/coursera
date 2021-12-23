@@ -14,6 +14,7 @@ const Dishes = require("./models/dishes");
 
 const app = express();
 
+//Connecting mongodb
 const url = "mongodb://localhost:27017/conFusion";
 mongoose.connect(url).then(
   (db) => console.log("Connected successfully to the server"),
@@ -24,12 +25,45 @@ mongoose.connect(url).then(
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
 
+//Middlewares
+
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+//Authentication middleware before accessing to the site
+app.use((req, res, next) => {
+  console.log(req.headers);
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader) {
+    const err = new Error("You are not authorized.");
+    res.setHeader("WWW-Authenticate", "Basic");
+    err.status = 401;
+    next(err);
+    return;
+  }
+  const auth = Buffer.from(authHeader.split(" ")[1], "base64")
+    .toString()
+    .split(":");
+  const user = auth[0];
+  const pass = auth[1];
+
+  if (user === "admin" && pass === "password") {
+    next();
+  } else {
+    const err = new Error("You are not authorized.");
+    res.setHeader("WWW-Authenticate", "Basic");
+    err.status = 401;
+    next(err);
+    return;
+  }
+});
+
 app.use(express.static(path.join(__dirname, "public")));
 
+//Handling routes
 app.use("/", indexRouter);
 app.use("/dishes", dishRouter);
 app.use("/promotions", promoRouter);
